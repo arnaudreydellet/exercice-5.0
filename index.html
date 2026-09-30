@@ -2,7 +2,16 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F4E79">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Façade cintrée">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Exercice 5 — Préparer une façade cintrée — Correction</title>
 <style>
 :root{
@@ -213,6 +222,100 @@ svg text{font-family:var(--texte)}
   animation:trace 2.4s ease .5s forwards}
 @keyframes trace{to{stroke-dashoffset:0}}
 
+
+/* ============ TÉLÉPHONE (portrait ou paysage) ============ */
+#pied{display:none}
+.ex-court{display:none}
+@media (max-width: 820px), (max-height: 520px){
+  html{font-size:clamp(13px, 3.7vmin, 17px)}
+  body{display:flex;flex-direction:column;height:100vh;height:100dvh;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  header.bar{position:relative;height:auto;flex:0 0 auto;flex-direction:column;align-items:stretch;gap:.45rem;
+    padding:calc(env(safe-area-inset-top, 0px) + .55rem) calc(env(safe-area-inset-right, 0px) + .9rem) .55rem calc(env(safe-area-inset-left, 0px) + .9rem)}
+  .bar .ch, .bar .ex-long{display:none}
+  .bar .ex-court{display:inline;font-size:1rem}
+  nav{display:grid;grid-template-columns:1.9fr repeat(5,1fr);gap:.35rem}
+  nav button{margin:0;padding:.45rem 0;font-size:.95rem}
+  #deck{position:relative;top:auto;flex:1 1 auto;min-height:0}
+  body.acc #deck{top:auto}
+  #cpt{display:none}
+  #pied{display:flex;flex:0 0 auto;align-items:center;justify-content:space-between;gap:.8rem;background:#fff;border-top:1px solid var(--bleu3);
+    padding:.55rem calc(env(safe-area-inset-right, 0px) + .9rem) calc(env(safe-area-inset-bottom, 0px) + .55rem) calc(env(safe-area-inset-left, 0px) + .9rem)}
+  body.acc #pied{display:none}
+  #pied button{font:inherit;font-size:1.05rem;border-radius:.4rem;padding:.7rem 1rem;cursor:pointer;min-width:7.5rem}
+  #bprec{background:#fff;border:1px solid var(--bleu3);color:var(--bleu)}
+  #bsuiv{background:var(--bleu);border:1px solid var(--bleu);color:#fff;font-weight:600}
+  #pied button:disabled{opacity:.35}
+  #cpt2{font-size:.85rem;color:var(--gris);white-space:nowrap}
+
+  .ecran{display:block;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    padding:1rem calc(env(safe-area-inset-right, 0px) + 1rem) 2rem calc(env(safe-area-inset-left, 0px) + 1rem)}
+  .q{font-size:1.05rem;line-height:1.45}
+  .q-court{font-size:1rem}
+  .corps, .corps.deux, .corps.centre{display:flex;flex-direction:column;align-items:stretch;gap:1.1rem;padding-top:.9rem}
+  .corps.haut{padding-top:.9rem}
+  .fig{flex:none;width:100%;height:32vh;min-height:11rem}
+  .fig svg{max-height:100%}
+  .calc, .calc.serre{flex:none;width:100%;font-size:1.75rem;justify-content:flex-start;gap:.75rem}
+  .corps.centre .calc{flex:none}
+  .ln .nt{position:absolute;left:calc(var(--gw, 3em) + 1.6em);right:0;top:100%;margin:.15em 0 0;font-size:.8rem;white-space:normal}
+  .ln:has(.nt){margin-bottom:.9em}
+  .choix2{display:block;margin:.45em 0 0 0;max-width:none;max-height:5em;transition:max-height .7s ease, opacity .5s ease, margin .7s ease}
+  .choix2.off{max-height:0;margin:0}
+  .calc .ph{font-size:1.05rem;white-space:normal}
+  .rep{font-size:1.1rem;max-width:100%;margin-top:.6rem}
+  .pointilles{width:55%}
+
+  .fig-plan{flex:none;height:44vh}
+  .cote-d{gap:1rem}
+  .donnees{padding:.9rem 1rem}
+  .don-t{font-size:1.1rem}
+  .donnees ul{font-size:1rem;line-height:1.7}
+  .note{font-size:.95rem}
+
+  .tab-f{font-size:.9rem}
+  .tab-f th{white-space:normal}
+  .bande-f{width:100%;height:2.8rem;font-size:.82rem;margin-top:1rem}
+  .seg.bout{flex-basis:15%}
+
+  .gauche4{flex:none;width:100%}
+  .gauche4 .q{font-size:1rem}
+  .tab-r{font-size:.95rem}
+  .ok{display:block;margin:.2rem 0 0}
+
+  .fiche{font-size:.92rem;margin-top:1rem}
+  .fiche th{font-size:.78rem}
+  .fiche th,.fiche td{padding:.45rem .5rem}
+  .fiche td.v{width:25%}
+  .fiche td:nth-child(2){width:28%}
+  .c5t{font-size:1.05rem}
+  .consigne5 p{font-size:1rem}
+
+  .ecran.accueil{display:flex;flex-direction:column;justify-content:center;gap:1.4rem;
+    padding:calc(env(safe-area-inset-top, 0px) + 1.5rem) 1.6rem calc(env(safe-area-inset-bottom, 0px) + 1.5rem)}
+  .acc-g{flex:none}
+  .acc-chap{font-size:1rem;margin-bottom:.8rem}
+  .acc-g h1{font-size:2.5rem}
+  .acc-sous{font-size:1.3rem;margin-top:1rem}
+  .acc-dos{font-size:.95rem}
+  .go{margin-top:1.5rem;width:100%;padding:1rem;font-size:1.1rem}
+  .acc-pied{margin-top:1.4rem;font-size:.85rem}
+  .acc-d{flex:none;width:100%;height:30vh;order:-1}
+}
+@media (max-height: 520px) and (orientation: landscape){
+  .corps{flex-direction:row !important;align-items:flex-start !important}
+  .fig{flex:0 0 36%;width:36%;height:60vh}
+  .calc, .calc.serre{flex:1 1 0;width:auto;min-width:0}
+  .gauche4{flex:0 0 46%;width:46%}
+  header.bar{flex-direction:row;align-items:center;padding-top:calc(env(safe-area-inset-top, 0px) + .35rem);padding-bottom:.35rem}
+  nav{flex:0 0 55%}
+  nav button{padding:.3rem 0}
+  #pied{padding-top:.3rem;padding-bottom:calc(env(safe-area-inset-bottom, 0px) + .3rem)}
+  #pied button{padding:.45rem 1rem}
+  .fig-plan{height:70vh;width:50%}
+  .ecran.accueil{flex-direction:row;align-items:center}
+  .acc-d{order:0;height:70vh;width:45%}
+}
+
 @media (prefers-reduced-motion: reduce){
   *{transition:none !important;animation:none !important}
   .acc-arc{stroke-dashoffset:0}
@@ -221,7 +324,7 @@ svg text{font-family:var(--texte)}
 </head>
 <body class="acc">
 <header class="bar">
-  <div><span class="ch">Chapitre 1 : Trigonométrie</span><span class="ex">Exercice 5 — Préparer une façade cintrée · Correction</span></div>
+  <div><span class="ch">Chapitre 1 : Trigonométrie</span><span class="ex"><span class="ex-long">Exercice 5 — Préparer une façade cintrée · Correction</span><span class="ex-court">Exercice 5 — Façade cintrée · Correction</span></span></div>
   <nav id="nav">
     <button data-go="0">Énoncé</button><button data-go="1">1</button><button data-go="2">2</button>
     <button data-go="3">3</button><button data-go="4">4</button><button data-go="5">5</button>
@@ -359,6 +462,7 @@ svg text{font-family:var(--texte)}
 </div></section>
 </main>
 <div id="cpt"></div>
+<div id="pied"><button id="bprec" type="button">Précédent</button><span id="cpt2"></span><button id="bsuiv" type="button">Suivant</button></div>
 <script>
 (function(){
   const E=[...document.querySelectorAll('.ecran')];
@@ -383,6 +487,7 @@ svg text{font-family:var(--texte)}
     });
     e._n=m;
   });
+  const MOB=window.matchMedia('(max-width: 820px), (max-height: 520px)');
   const TOTAL=E.reduce((a,e)=>a+e._n+1,0);
   let i=0, s=0;
 
@@ -461,6 +566,25 @@ svg text{font-family:var(--texte)}
   };
 
   const nav=[...document.querySelectorAll('nav button')];
+  /* ---- téléphone : la ligne de calcul la plus large tient dans l'écran ---- */
+  function ajuster(e){
+    e.querySelectorAll('.calc').forEach(c=>{
+      c.style.fontSize='';
+      if(!MOB.matches) return;
+      const W=c.clientWidth; let m=0;
+      c.querySelectorAll('.ln').forEach(l=>{ m=Math.max(m,l.scrollWidth); });
+      if(m>W+1){ const fs=parseFloat(getComputedStyle(c).fontSize); c.style.fontSize=(fs*W/m*0.97).toFixed(2)+'px'; }
+    });
+  }
+  let dernierEcran=-1;
+  function suivreEtape(e,fwd){
+    if(!MOB.matches) return;
+    if(s===0){ e.scrollTop=0; return; }
+    const cibles=[...e.querySelectorAll('[data-s="'+s+'"],[data-x="'+s+'"],[data-hl~="'+s+'"]')];
+    const el=cibles[cibles.length-1]; if(!el) return;
+    const bloc=el.closest('.ln,.rep,.ph,tr,.pt,.donnees,.note,.seg,svg')||el;
+    setTimeout(()=>bloc.scrollIntoView({block:'nearest',behavior:REDUIT?'auto':'smooth'}),60);
+  }
   function rendu(fwd){
     E.forEach((e,k)=>e.classList.toggle('actif',k===i));
     const e=E[i];
@@ -473,8 +597,13 @@ svg text{font-family:var(--texte)}
     nav.forEach(b=>{const g=+b.dataset.go; b.classList.toggle('actif',g===q); b.classList.toggle('fait',g<q);});
     let pos=0; for(let k=0;k<i;k++) pos+=E[k]._n+1; pos+=s+1;
     document.getElementById('cpt').textContent=pos+' / '+TOTAL;
+    if(dernierEcran!==i){ ajuster(e); dernierEcran=i; }
     cadrer();
     (HOOKS[e.id]||function(){})(s,fwd,e);
+    suivreEtape(e,fwd);
+    const c2=document.getElementById('cpt2'); if(c2) c2.textContent=pos+' / '+TOTAL;
+    document.getElementById('bprec').disabled=(i===0&&s===0);
+    document.getElementById('bsuiv').disabled=(i===E.length-1&&s===E[i]._n);
   }
   function suivant(){ if(s<E[i]._n) s++; else if(i<E.length-1){i++;s=0;} else return; rendu(true); }
   function precedent(){ if(s>0) s--; else if(i>0){i--;s=E[i]._n;} else return; rendu(false); }
@@ -489,10 +618,23 @@ svg text{font-family:var(--texte)}
     else if(/^[0-5]$/.test(k)) aller(+k);
     else if(k==='f'||k==='F'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
   });
-  document.addEventListener('click',ev=>{ if(ev.target.closest('nav,button')) return; suivant(); });
+  document.addEventListener('click',ev=>{ if(balaye||ev.target.closest('nav,button,#pied,header')) return; suivant(); });
   document.getElementById('commencer').addEventListener('click',suivant);
   nav.forEach(b=>b.addEventListener('click',()=>aller(+b.dataset.go)));
-  window.addEventListener('resize',()=>rendu(false));
+  window.addEventListener('resize',()=>{ dernierEcran=-1; rendu(false); });
+  document.getElementById('bprec').addEventListener('click',precedent);
+  document.getElementById('bsuiv').addEventListener('click',suivant);
+  /* balayage horizontal sur téléphone */
+  let tx=null, ty=null;
+  document.getElementById('deck').addEventListener('touchstart',ev=>{ const t=ev.changedTouches[0]; tx=t.clientX; ty=t.clientY; },{passive:true});
+  document.getElementById('deck').addEventListener('touchend',ev=>{
+    if(tx===null) return; const t=ev.changedTouches[0]; const dx=t.clientX-tx, dy=t.clientY-ty; tx=null;
+    if(Math.abs(dx)>60 && Math.abs(dx)>1.6*Math.abs(dy)){ ev.preventDefault(); dx<0?suivant():precedent(); balaye=true; setTimeout(()=>balaye=false,400); }
+  });
+  let balaye=false;
+  if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
+    window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  }
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>rendu(false));
   window.Deck={suivant,precedent,aller,etat:()=>({i,s,id:E[i].id,n:E[i]._n})};
   rendu(false);
