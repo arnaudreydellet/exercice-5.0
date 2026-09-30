@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exercice 5 — Préparer une façade cintrée — Correction</title>
+<style>
+:root{
+  --bleu:#1F4E79; --bleu2:#5B7FA6; --bleu3:#C9D6E4; --bleu4:#EEF3F8;
+  --fond:#FAFCFE; --encre:#1E2A36; --gris:#7A8694; --grisl:#E6EBF0;
+  --brique:#B23A2F; --briquel:#FBF1EF; --vert:#2E7D4F;
+  --math:"Cambria Math", Cambria, "STIX Two Math", "Latin Modern Math", "Times New Roman", serif;
+  --texte:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+html{font-size:min(1.04vw, 1.85vh)}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;overflow:hidden;background:var(--fond);color:var(--encre);font-family:var(--texte);
+  -webkit-user-select:none;user-select:none;cursor:default}
+
+/* ---------- bandeau ---------- */
+header.bar{position:fixed;top:0;left:0;right:0;height:3.4rem;display:flex;align-items:center;justify-content:space-between;
+  padding:0 2.4rem;background:#fff;border-bottom:1px solid var(--bleu3);z-index:5}
+.bar .ch{color:var(--gris);font-size:.95rem;margin-right:1.4rem}
+.bar .ex{color:var(--bleu);font-weight:600;font-size:1.1rem}
+nav{display:flex;gap:.45rem}
+nav button{font:inherit;font-size:.95rem;border:1px solid var(--bleu3);background:#fff;color:var(--gris);
+  padding:.28rem .85rem;border-radius:.3rem;cursor:pointer;transition:all .3s}
+nav button.fait{color:var(--vert);border-color:#B9D8C5}
+nav button.actif{background:var(--bleu);border-color:var(--bleu);color:#fff}
+nav button:focus-visible{outline:2px solid var(--bleu2);outline-offset:2px}
+body.acc header.bar{display:none}
+#cpt{position:fixed;right:1.4rem;bottom:.8rem;font-size:.8rem;color:#A9B3BE;z-index:5}
+body.acc #cpt{display:none}
+
+/* ---------- écrans ---------- */
+#deck{position:fixed;top:3.4rem;left:0;right:0;bottom:0}
+body.acc #deck{top:0}
+.ecran{position:absolute;inset:0;padding:1.7rem 3.2rem 2.4rem;display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transition:opacity .45s ease, visibility 0s linear .45s}
+.ecran.actif{opacity:1;visibility:visible;transition:opacity .45s ease}
+
+/* dévoilement */
+[data-s]{opacity:0;transition:opacity .55s ease, color .6s ease, fill .6s ease, stroke .6s ease}
+[data-s].on{opacity:1}
+[data-h].off{opacity:0 !important}
+
+/* ---------- énoncés ---------- */
+.q{font-weight:700;font-size:1.32rem;line-height:1.5;max-width:80rem;flex:0 0 auto}
+.q .qn{text-decoration:underline;text-underline-offset:.22em;text-decoration-thickness:1px;margin-right:.3rem}
+.q .qa{margin-right:.2rem}
+.q .qs{font-weight:400;color:var(--gris);font-size:1rem}
+.q-court{font-size:1.25rem}
+.q-court .suite{font-weight:400;color:var(--gris)}
+.m{font-family:var(--math)}
+
+.corps{flex:1 1 auto;min-height:0;display:flex;align-items:center;gap:3.2rem;padding-top:1rem}
+.corps.centre{justify-content:center}
+.corps.haut{align-items:flex-start;padding-top:1.6rem}
+.fig{flex:0 0 33%;height:100%;display:flex;align-items:center;justify-content:center;min-height:0}
+.fig svg{width:100%;height:100%;max-height:38rem}
+
+/* ---------- figures ---------- */
+svg text{font-family:var(--texte)}
+.trait{stroke:var(--encre);stroke-width:2.2;fill:none;stroke-linecap:round}
+.trait.fin{stroke-width:1.5}
+.tirets{stroke-dasharray:7 6;stroke-width:1.6}
+.pt-fig{fill:var(--encre)}
+.let{font-size:24px;fill:var(--encre)}
+.cote{font-size:21px;fill:var(--encre)}
+.petit{font-size:19px;fill:var(--encre)}
+.alpha{font-family:var(--math);font-style:italic;font-size:26px;fill:var(--encre)}
+.res60{font-style:normal;font-family:var(--texte);font-weight:700;fill:var(--brique);font-size:22px}
+.secteur{fill:var(--bleu4);stroke:var(--bleu2);stroke-width:1.4}
+.ident{stroke:var(--bleu);stroke-width:6;stroke-linecap:round;opacity:.0}
+.ident.on{opacity:.9}
+.ident.hl{stroke:var(--brique)}
+.etiq{font-size:20px;fill:var(--bleu);font-weight:600}
+.cote.hl{fill:var(--brique);font-weight:700}
+.angdroit.hl{stroke:var(--brique);stroke-width:3}
+.cercle{fill:none;stroke:#9FB0C2;stroke-width:1.6}
+.arcIM{fill:none;stroke:var(--bleu);stroke-width:7;stroke-linecap:round}
+.sect-pl{fill:var(--bleu4)}
+.rayon6{stroke:#B7C4D2;stroke-width:1.4;stroke-dasharray:5 5}
+.fantome{fill:none;stroke:#B7C4D2;stroke-width:2;stroke-dasharray:6 6}
+.bande{fill:none;stroke:var(--bleu);stroke-width:7;stroke-linecap:round}
+.mur{stroke:#9AA6B2;stroke-width:8;fill:none}
+.meuble{fill:none;stroke:#A9B5C1;stroke-width:1.6}
+.meuble.fin{stroke-width:1}
+
+/* ---------- calculs ---------- */
+.calc{flex:1 1 auto;position:relative;display:flex;flex-direction:column;justify-content:center;gap:1.05rem;
+  font-family:var(--math);font-size:2.35rem;min-width:0}
+.calc.serre{gap:.75rem}
+.corps.centre .calc{flex:0 1 auto}
+.ln{display:flex;align-items:center;position:relative;min-height:1.5em;white-space:nowrap}
+.ln .imp{width:1.7em;flex:0 0 1.7em;color:var(--gris);font-size:.85em}
+.ln .g{min-width:var(--gw,3em);text-align:right}
+.ln .eq{width:1.6em;flex:0 0 1.6em;text-align:center}
+.ln .dr{display:inline-block;white-space:nowrap}
+.ln .nt{margin-left:1.3em;font-family:var(--texte);font-size:.52em;color:var(--gris);font-style:italic}
+.ln.cur, .pt.cur{color:var(--brique)}
+.ln.fo{color:var(--bleu)}
+.ln.fo.cur{color:var(--bleu)}
+.ln.rap{color:var(--gris);font-size:.78em}
+.ln.rap .g{min-width:calc(var(--gw,3em) / .78)}
+.ln.rap .imp{width:calc(1.7em / .78);flex-basis:calc(1.7em / .78)}
+.ln.rap .eq{width:calc(1.6em / .78);flex-basis:calc(1.6em / .78)}
+.ln.lres{color:var(--brique)}
+.gi,.di{display:inline-block}
+.cadre{position:absolute;border:.065em solid var(--brique);background:var(--briquel);border-radius:.12em;z-index:-1;pointer-events:none}
+.w{font-family:var(--texte);font-size:.82em}
+.fr .w{font-size:.78em}
+.u{font-family:var(--texte);font-size:.8em;margin-left:.1em}
+.sep{margin:0 .9em;color:var(--gris)}
+.fn{font-style:normal}
+.pi{font-style:normal}
+.hl{color:var(--brique) !important}
+[data-tk].hl{font-weight:700}
+
+.fr{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;margin:0 .14em;line-height:1.14}
+.fr>span{padding:0 .2em;display:block;text-align:center}
+.fr>.d{border-top:.055em solid currentColor}
+.fr-t{font-size:.95em}
+
+.bz{position:relative;display:inline-block}
+.bz::after{content:"";position:absolute;left:-.08em;right:-.08em;top:52%;border-top:.07em solid var(--brique);
+  transform:rotate(-58deg) scaleX(0);transition:transform .5s ease}
+.bz.barre::after{transform:rotate(-58deg) scaleX(1)}
+
+.choix2{display:inline-block;vertical-align:middle;white-space:nowrap;margin-left:2.4em;color:var(--bleu);max-width:14em;overflow:hidden;
+  transition:max-width .7s ease, opacity .5s ease, margin .7s ease}
+.choix2.off{max-width:0;margin-left:0}
+.ln.fo.hl .g, .ln.fo.hl .eq, .ln.fo.hl .dr > .fr{color:var(--brique)}
+
+.ph{font-family:var(--texte);font-size:.7em;color:var(--encre)}
+.ph.cur{color:var(--brique)}
+
+.croix{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.croix path{fill:none;stroke:var(--brique);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.croix circle{fill:none;stroke:var(--brique);stroke-width:2}
+
+/* phrase réponse */
+.rep{display:grid;font-family:var(--texte);font-size:1.6rem;margin-top:1rem;white-space:normal;max-width:52rem}
+.rep>*{grid-area:1/1;line-height:1.5}
+.rep .pts{color:var(--gris)}
+.pointilles{display:inline-block;width:26rem;border-bottom:2px dotted #A9B3BE;transform:translateY(-.25em)}
+.rep .txt{color:var(--brique);font-weight:600}
+.rep .fr{font-size:1.15em;margin:0 .1em}
+
+/* ---------- énoncé ---------- */
+.fig-plan{flex:0 0 50%}
+.fig-plan svg{max-height:38rem}
+.cote-d{flex:1;display:flex;flex-direction:column;gap:2rem}
+.donnees{border:1px solid var(--bleu3);background:#fff;border-radius:.3rem;padding:1.2rem 1.6rem}
+.don-t{font-weight:700;color:var(--bleu);font-size:1.35rem;margin-bottom:.6rem}
+.donnees ul{margin:0;padding-left:1.3rem;font-size:1.3rem;line-height:1.9}
+.note{font-style:italic;font-size:1.15rem;line-height:1.55;color:#445262;margin:0}
+
+/* ---------- question 3b ---------- */
+.consigne-f{margin-top:1rem}
+.tab-f{border-collapse:collapse;font-size:1.12rem}
+.tab-f th,.tab-f td{border:1px dotted #9AA6B2;padding:.5rem .9rem;text-align:left;vertical-align:middle}
+.tab-f th{background:var(--bleu4);white-space:nowrap}
+.bande-f{display:flex;margin:1.6rem auto 0;width:74%;height:3.2rem;font-size:1.1rem}
+.seg{display:flex;align-items:center;justify-content:center;border:1.5px solid var(--bleu);}
+.seg.milieu{flex:1;background:#DCE6F0;border-left:none;border-right:none}
+.seg.bout{flex:0 0 12%;background:repeating-linear-gradient(-45deg,#fff 0 6px,#F3D9D5 6px 9px);border-color:var(--brique);color:var(--brique);font-weight:600}
+.seg i.m{font-style:italic}
+
+/* ---------- question 4 ---------- */
+.corps.deux{align-items:center;gap:3.6rem;padding-top:0}
+.gauche4{flex:0 0 44%;display:flex;flex-direction:column;gap:1rem}
+.gauche4 .q{font-size:1.22rem}
+.tab-r{border-collapse:collapse;font-size:1.2rem;width:100%}
+.tab-r th,.tab-r td{border:1px dotted #9AA6B2;padding:.5rem .9rem;text-align:left}
+.tab-r th{font-weight:400;width:42%}
+.tab-r tr:first-child th{font-weight:700}
+.tab-r tr:first-child td, .tab-r tr:first-child th{background:#F1F3F5}
+.tab-r td.val{transition:box-shadow .5s, background .5s}
+.tab-r td.val.hl{box-shadow:inset 0 0 0 3px var(--brique);background:var(--briquel)}
+.ok{margin-left:1rem;color:var(--vert);font-weight:700;font-size:1.05rem}
+
+/* ---------- question 5 ---------- */
+.fiche{border-collapse:collapse;width:100%;max-width:92rem;margin-top:1.4rem;font-size:1.55rem}
+.fiche th,.fiche td{border:1px dotted #8E9AA6;padding:.52rem 1rem;text-align:left;vertical-align:middle}
+.fiche th{background:#EEF1F4;font-weight:700;font-size:1.25rem}
+.fiche td.v{width:22%;text-align:center;font-weight:700}
+.fiche td.v .pt{color:var(--brique)}
+.fiche td.v .pt.cur{color:var(--brique)}
+.fiche td:nth-child(2){width:26%}
+.consigne5{margin-top:1.6rem;max-width:92rem}
+.c5t{font-weight:700;font-size:1.5rem}
+.consigne5 p{font-size:1.5rem;line-height:1.6;margin:.4rem 0 0;color:var(--encre)}
+.consigne5 .pt{display:block}
+.consigne5 .pt.cur{color:var(--brique)}
+
+/* ---------- accueil ---------- */
+.ecran.accueil{flex-direction:row;align-items:center;padding:0 6vw;gap:4vw}
+.acc-g{flex:0 0 48%}
+.acc-chap{color:var(--bleu2);font-size:1.3rem;margin-bottom:1.4rem}
+.acc-g h1{margin:0;font-size:3.9rem;line-height:1.1;color:var(--bleu);font-weight:700}
+.acc-g h1 span{display:block;font-weight:400;color:var(--encre);font-size:.72em;margin-top:.5rem}
+.acc-sous{margin-top:1.6rem;font-size:1.7rem;color:var(--brique);font-weight:600}
+.acc-dos{margin-top:.8rem;font-size:1.15rem;color:var(--gris)}
+.go{margin-top:2.6rem;font:inherit;font-size:1.25rem;background:var(--bleu);color:#fff;border:none;border-radius:.35rem;
+  padding:.85rem 1.8rem;cursor:pointer}
+.go:hover{background:#18426a}
+.go:focus-visible{outline:3px solid var(--bleu3);outline-offset:3px}
+.acc-pied{margin-top:4rem;font-size:1rem;color:var(--gris)}
+.acc-d{flex:1;height:70vh;display:flex;align-items:center;justify-content:center}
+.acc-d svg{width:100%;height:100%}
+.acc-arc{fill:none;stroke:var(--bleu);stroke-width:9;stroke-linecap:round;stroke-dasharray:420;stroke-dashoffset:420;
+  animation:trace 2.4s ease .5s forwards}
+@keyframes trace{to{stroke-dashoffset:0}}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important}
+  .acc-arc{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body class="acc">
+<header class="bar">
+  <div><span class="ch">Chapitre 1 : Trigonométrie</span><span class="ex">Exercice 5 — Préparer une façade cintrée · Correction</span></div>
+  <nav id="nav">
+    <button data-go="0">Énoncé</button><button data-go="1">1</button><button data-go="2">2</button>
+    <button data-go="3">3</button><button data-go="4">4</button><button data-go="5">5</button>
+  </nav>
+</header>
+<main id="deck">
+<section class="ecran accueil" id="accueil" data-q="-1">
+<div class="acc-g">
+  <div class="acc-chap">Chapitre 1 : Trigonométrie</div>
+  <h1>Exercice 5<br><span>Préparer une façade cintrée</span></h1>
+  <div class="acc-sous">Correction</div>
+  <div class="acc-dos">Mise en situation professionnelle — Dossier ACC-001</div>
+  <button class="go" id="commencer">Commencer la correction</button>
+  <div class="acc-pied">1re Bac Pro · M. Reydellet · 2026 – 2027</div>
+</div>
+<div class="acc-d">
+  <svg viewBox="0 0 520 470" aria-hidden="true">
+    <line x1="60" y1="420" x2="460" y2="420" class="trait"/>
+    <line x1="60" y1="420" x2="260" y2="73.6" class="trait"/>
+    <line x1="260" y1="420" x2="260" y2="73.6" class="trait tirets"/>
+    <path d="M 460 420 A 400 400 0 0 0 260 73.6" class="acc-arc"/>
+    <circle cx="60" cy="420" r="5" class="pt-fig"/><circle cx="460" cy="420" r="5" class="pt-fig"/>
+    <circle cx="260" cy="73.6" r="5" class="pt-fig"/><circle cx="260" cy="420" r="5" class="pt-fig"/>
+    <text x="48" y="450" class="let" text-anchor="end">O</text><text x="270" y="450" class="let">H</text>
+    <text x="466" y="452" class="let">I</text><text x="274" y="60" class="let">M</text>
+  </svg>
+</div></section>
+<section class="ecran " id="enonce" data-q="0">
+<div class="q"><span class="qn">Document — Vue en plan d’un meuble d’accueil à façade cintrée</span> <span class="qs">Échelle 1:10 (cotes en cm)</span></div>
+<div class="corps">
+  <div class="fig fig-plan"><svg viewBox="0 0 620 540" class="plan" aria-hidden="true"><path d="M 30 62 L 30 472" class="mur"/><path d="M 30 95.5 L 142.5 95.5 A 360 360 0 0 1 440 450" class="meuble"/><path d="M 30 115.2 L 139.0 115.2 A 340 340 0 0 1 420 450" class="meuble fin"/><path d="M 440 450 A 360 360 0 0 0 260.0 138.2" class="arcIM"/><line x1="80" y1="450" x2="440" y2="450" class="trait"/><line x1="80" y1="450" x2="260" y2="138.2" class="trait"/><line x1="260" y1="450" x2="260" y2="138.2" class="trait tirets"/><path d="M 80 450 L 126 450 A 46 46 0 0 0 103.0 410.2 Z" class="secteur"/><text x="143.6" y="424.2" class="alpha" text-anchor="middle">α</text><circle cx="80.0" cy="450.0" r="5" class="pt-fig"/><circle cx="260.0" cy="450.0" r="5" class="pt-fig"/><circle cx="440.0" cy="450.0" r="5" class="pt-fig"/><circle cx="260.0" cy="138.2" r="5" class="pt-fig"/><text x="68" y="476" class="let" text-anchor="end">O</text><text x="270" y="480" class="let">H</text><text x="444" y="482" class="let">I</text><text x="274" y="126.2" class="let">M</text><text x="145.8" y="280.1" class="cote" text-anchor="middle" transform="rotate(-60 145.8 280.1)">OM = 80 cm</text><line x1="80" y1="486" x2="260" y2="486" class="trait fin" marker-start="url(#fl)" marker-end="url(#fl)"/><line x1="80" y1="462" x2="80" y2="494" class="trait fin"/><line x1="260" y1="462" x2="260" y2="494" class="trait fin"/><text x="170.0" y="522" class="cote" text-anchor="middle">OH = 40 cm</text><line x1="373.1" y1="221.0" x2="429.1" y2="177.0" class="trait fin"/><text x="435.1" y="161.0" class="cote">façade cintrée</text><text x="435.1" y="185.0" class="cote">à fabriquer</text><defs><marker id="fl" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#1E2A36" stroke-width="1.4"/></marker></defs></svg></div>
+  <div class="cote-d">
+    <div class="donnees" data-s="1">
+      <div class="don-t">Données de fabrication</div>
+      <ul>
+        <li>rayon de cintrage : OM = 80 cm</li>
+        <li>distance horizontale : OH = 40 cm</li>
+        <li>la façade à usiner correspond à l’arc IM</li>
+        <li>objectif : retrouver la rotation en radians</li>
+      </ul>
+    </div>
+    <p class="note" data-s="2">Reproduction non à l’échelle : utiliser les cotes, sans mesurer sur l’image. O est le centre du cintre ; MH est perpendiculaire à OI.</p>
+  </div>
+</div></section>
+<section class="ecran " id="q1a" data-q="1"><div class="q"><span class="qn">1. Compléter la cote manquante :</span> L’ouverture du cintre n’est pas cotée. Déterminer la valeur à reporter à la place de <i>α</i>, en degrés, pour compléter le plan de fabrication.</div>
+<div class="corps">
+  <div class="fig"><svg viewBox="0 0 440 490" class="tri" aria-hidden="true"><line x1="70" y1="400" x2="270" y2="400" class="trait"/><line x1="270" y1="400" x2="270" y2="53.6" class="trait"/><line x1="70" y1="400" x2="270" y2="53.6" class="trait"/><line x1="70" y1="400" x2="270" y2="53.6" class="ident" data-s="2" data-hl="2"/><line x1="70" y1="400" x2="270" y2="400" class="ident" data-s="3" data-hl="3"/><path d="M 250 400 L 250 380 L 270 380" class="trait fin angdroit" data-hl="1"/><path d="M 70 400 L 122 400 A 52 52 0 0 0 96.0 355.0 Z" class="secteur"/><circle cx="70" cy="400.0" r="4.5" class="pt-fig"/><circle cx="270" cy="400.0" r="4.5" class="pt-fig"/><circle cx="270" cy="53.6" r="4.5" class="pt-fig"/><text x="56" y="426" class="let" text-anchor="end">O</text><text x="282" y="428" class="let">H</text><text x="284" y="49.6" class="let">M</text><text x="140.6" y="371.4" class="alpha" text-anchor="middle">α</text><text x="144.0" y="211.8" class="cote" text-anchor="middle" transform="rotate(-60 144.0 211.8)" data-hl="6">80 cm</text><text x="170.0" y="434" class="cote" text-anchor="middle" data-hl="6">40 cm</text><text x="199.4" y="243.8" class="etiq" text-anchor="middle" transform="rotate(-60 199.4 243.8)" data-s="2">hypoténuse</text><text x="170.0" y="470" class="etiq" text-anchor="middle" data-s="3">côté adjacent à α</text></svg></div>
+  <div class="calc" style="--gw:4.6em"><div class="choixmark" data-s="4"></div><div class="ph" data-s="1">Le triangle OHM est rectangle en H.</div><div class="ln fo" data-s="4"><span class="imp"></span><span class="g"><span class="fn">cos</span>(<i>α</i>)</span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n"><span class="w">côté adjacent</span></span><span class="d"><span class="w">hypoténuse</span></span></span><span class="choix2 fold" data-h="5"><span class="fn">sin</span>(<i>α</i>) = <span class="fr "><span class="n"><span class="w">côté opposé</span></span><span class="d"><span class="w">hypoténuse</span></span></span></span></span></div><div class="ln " data-s="6"><span class="imp">⇔</span><span class="g"><span class="fr "><span class="n"><span data-tk="d" data-hl="7"><span class="fn">cos</span>(<i>α</i>)</span></span><span class="d"><span data-tk="b" data-hl="7">1</span></span></span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n"><span data-tk="a" data-hl="7">40</span></span><span class="d"><span data-tk="c" data-hl="7">80</span></span></span></span></div><div class="ln " data-s="8"><span class="imp">⇔</span><span class="g"><span class="fn">cos</span>(<i>α</i>)</span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">40 × 1</span><span class="d">80</span></span></span></div><div class="ln " data-s="9"><span class="imp">⇔</span><span class="g"><span class="fn">cos</span>(<i>α</i>)</span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">4<span class="bz" data-x="10">0</span></span><span class="d">8<span class="bz" data-x="10">0</span></span></span><span class="pt" data-s="11"> = <span class="fr "><span class="n">4</span><span class="d">8</span></span></span><span class="pt" data-s="12"> = <span class="fr "><span class="n">4 ÷ 4</span><span class="d">8 ÷ 4</span></span></span><span class="pt" data-s="13"> = <span class="fr "><span class="n">1</span><span class="d">2</span></span></span><span class="pt" data-s="14"> = 0,5</span></span></div><svg class="croix"></svg></div>
+</div></section>
+<section class="ecran " id="q1b" data-q="1"><div class="q"><span class="qn">1. Compléter la cote manquante :</span> L’ouverture du cintre n’est pas cotée. Déterminer la valeur à reporter à la place de <i>α</i>, en degrés, pour compléter le plan de fabrication.</div>
+<div class="corps">
+  <div class="fig"><svg viewBox="0 0 440 490" class="tri" aria-hidden="true"><line x1="70" y1="400" x2="270" y2="400" class="trait"/><line x1="270" y1="400" x2="270" y2="53.6" class="trait"/><line x1="70" y1="400" x2="270" y2="53.6" class="trait"/><path d="M 250 400 L 250 380 L 270 380" class="trait fin angdroit"/><path d="M 70 400 L 122 400 A 52 52 0 0 0 96.0 355.0 Z" class="secteur"/><circle cx="70" cy="400.0" r="4.5" class="pt-fig"/><circle cx="270" cy="400.0" r="4.5" class="pt-fig"/><circle cx="270" cy="53.6" r="4.5" class="pt-fig"/><text x="56" y="426" class="let" text-anchor="end">O</text><text x="282" y="428" class="let">H</text><text x="284" y="49.6" class="let">M</text><text x="140.6" y="371.4" class="alpha" text-anchor="middle" data-h="2">α</text><text x="146.6" y="371.4" class="alpha res60" text-anchor="middle" data-s="2">60°</text><text x="144.0" y="211.8" class="cote" text-anchor="middle" transform="rotate(-60 144.0 211.8)">80 cm</text><text x="170.0" y="434" class="cote" text-anchor="middle">40 cm</text></svg></div>
+  <div class="calc" style="--gw:3.6em"><div class="ln rap"><span class="g"><span class="fn">cos</span>(<i>α</i>)</span><span class="eq">=</span><span class="dr">0,5</span></div><div class="ln " data-s="1"><span class="g"><i>α</i></span><span class="eq">=</span><span class="dr"><span class="fn">cos</span><sup>−1</sup>(0,5)</span><span class="nt">calculatrice en mode degrés</span></div><div class="ln lres" data-s="2"><span class="cadre"></span><span class="g"><span class="gi"><i>α</i></span></span><span class="eq">=</span><span class="dr"><span class="di">60°</span></span></div><div class="rep"><span class="pts" data-s="3" data-h="4">Réponse : <span class="pointilles"></span></span><span class="txt" data-s="4">Réponse : L’ouverture du cintre à reporter sur le plan de fabrication est de 60°.</span></div></div>
+</div></section>
+<section class="ecran " id="q2a" data-q="2"><div class="q"><span class="qn">2. Repérer la portion de gabarit à conserver :</span> Le gabarit est préparé à partir d’un cercle complet. Indiquer la part du tour correspondant à la façade IM, sous la forme d’une fraction simplifiée, puis en pourcentage arrondi au centième.</div>
+<div class="corps">
+  <div class="fig"><svg viewBox="0 0 440 450" class="cer" aria-hidden="true"><circle cx="220" cy="215" r="165" class="cercle"/><path d="M 385 215 A 165 165 0 0 0 302.5 72.1" class="arcIM"/><line x1="220" y1="215" x2="385" y2="215" class="trait"/><line x1="220" y1="215" x2="302.5" y2="72.1" class="trait"/><g data-s="2"><path d="M 260 215 A 40 40 0 0 0 240.0 180.4" class="trait fin"/><text x="275.4" y="191.0" class="petit" text-anchor="middle">60°</text></g><circle cx="220.0" cy="215.0" r="4.5" class="pt-fig"/><circle cx="385.0" cy="215.0" r="4.5" class="pt-fig"/><circle cx="302.5" cy="72.1" r="4.5" class="pt-fig"/><text x="208" y="223" class="let" text-anchor="end">O</text><text x="397" y="223" class="let">I</text><text x="314.5" y="62.1" class="let">M</text><text x="220" y="422" class="cote" text-anchor="middle" data-s="1">1 tour complet = 360°</text></svg></div>
+  <div class="calc" style="--gw:6.2em"><div class="ln fo" data-s="3"><span class="g"><span class="w">part du tour</span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n"><span class="w">angle de l’arc IM</span></span><span class="d"><span class="w">angle d’un tour</span></span></span></span></div><div class="ln " data-s="4"><span class="g"><span class="w">part du tour</span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">6<span class="bz" data-x="5">0</span></span><span class="d">36<span class="bz" data-x="5">0</span></span></span><span class="pt" data-s="6"> = <span class="fr "><span class="n">6</span><span class="d">36</span></span></span><span class="pt" data-s="7"> = <span class="fr "><span class="n">6 ÷ 6</span><span class="d">36 ÷ 6</span></span></span></span></div><div class="ln lres" data-s="8"><span class="cadre"></span><span class="g"><span class="gi"><span class="w">part du tour</span></span></span><span class="eq">=</span><span class="dr"><span class="di"><span class="fr "><span class="n">1</span><span class="d">6</span></span></span></span></div></div>
+</div></section>
+<section class="ecran " id="q2b" data-q="2"><div class="q q-court"><span class="qn">2. Repérer la portion de gabarit à conserver</span> <span class="suite">(suite)</span></div>
+<div class="corps">
+  <div class="fig"><svg viewBox="0 0 440 450" class="cer" aria-hidden="true"><path d="M 220 215 L 385 215 A 165 165 0 0 0 302.5 72.1 Z" class="sect-pl"/><circle cx="220" cy="215" r="165" class="cercle"/><line x1="220" y1="215" x2="137.5" y2="72.1" class="rayon6"/><line x1="220" y1="215" x2="55.0" y2="215.0" class="rayon6"/><line x1="220" y1="215" x2="137.5" y2="357.9" class="rayon6"/><line x1="220" y1="215" x2="302.5" y2="357.9" class="rayon6"/><path d="M 385 215 A 165 165 0 0 0 302.5 72.1" class="arcIM"/><line x1="220" y1="215" x2="385" y2="215" class="trait"/><line x1="220" y1="215" x2="302.5" y2="72.1" class="trait"/><g><path d="M 260 215 A 40 40 0 0 0 240.0 180.4" class="trait fin"/><text x="275.4" y="191.0" class="petit" text-anchor="middle">60°</text></g><circle cx="220.0" cy="215.0" r="4.5" class="pt-fig"/><circle cx="385.0" cy="215.0" r="4.5" class="pt-fig"/><circle cx="302.5" cy="72.1" r="4.5" class="pt-fig"/><text x="208" y="223" class="let" text-anchor="end">O</text><text x="397" y="223" class="let">I</text><text x="314.5" y="62.1" class="let">M</text><text x="220" y="422" class="cote" text-anchor="middle">le cercle partagé en 6 parts égales</text></svg></div>
+  <div class="calc" style="--gw:6.2em"><div class="ln rap"><span class="g"><span class="w">part du tour</span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">1</span><span class="d">6</span></span></span></div><div class="ln " data-s="1"><span class="g"><span class="w">pourcentage</span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">1</span><span class="d">6</span></span> × 100</span></div><div class="ln " data-s="2"><span class="g"><span class="w">pourcentage</span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">1 × 100</span><span class="d">6</span></span></span></div><div class="ln " data-s="3"><span class="g"><span class="w">pourcentage</span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">100</span><span class="d">6</span></span></span></div><div class="ln " data-s="4"><span class="g"><span class="w">pourcentage</span></span><span class="eq">≈</span><span class="dr">16,666…</span></div><div class="ln lres" data-s="5"><span class="cadre"></span><span class="g"><span class="gi"><span class="w">pourcentage</span></span></span><span class="eq">≈</span><span class="dr"><span class="di">16,67 %</span></span><span class="nt">arrondi au centième</span></div><div class="rep"><span class="pts" data-s="6" data-h="7">Réponse : <span class="pointilles"></span></span><span class="txt" data-s="7">Réponse : La façade IM représente <span class="m"><span class="fr fr-t"><span class="n">1</span><span class="d">6</span></span></span> du tour complet, soit environ 16,67 % du gabarit.</span></div></div>
+</div></section>
+<section class="ecran " id="q3a1" data-q="3"><div class="q"><span class="qn">3. Préparer la matière à débiter :</span> <span class="qa">a. Longueur finie de la façade :</span> Déterminer la longueur développée de l’arc IM, correspondant à la longueur de l’habillage une fois terminé. Donner la valeur exacte, puis une valeur arrondie au millimètre.</div>
+<div class="corps">
+  <div class="fig"><svg viewBox="0 0 430 470" class="der anim" aria-hidden="true" data-static="0"><path d="M 70 320 L 330 320" class="trait"/><path d="M 70 320 L 200.0 94.8" class="trait"/><path d="M 330 320 A 260 260 0 0 0 200.0 94.8" class="fantome"/><path class="bande" d=""/><circle cx="70.0" cy="320.0" r="4.5" class="pt-fig"/><circle cx="330.0" cy="320.0" r="4.5" class="pt-fig"/><circle cx="200.0" cy="94.8" r="4.5" class="pt-fig"/><text x="58" y="328" class="let" text-anchor="end">O</text><text x="342" y="328" class="let">I</text><text x="212.0" y="84.8" class="let">M</text><text x="200.0" y="354" class="cote" text-anchor="middle">r = 80 cm</text><text x="193.9" y="448" class="cote lbL" text-anchor="middle" data-s="1">longueur développée <tspan font-style="italic">L</tspan></text></svg></div>
+  <div class="calc" style="--gw:1.6em"><div class="ph" data-s="2">Périmètre du cercle de rayon <span class="m"><i>r</i></span> = 80 cm :</div><div class="ln fo" data-s="3"><span class="g"><i>P</i></span><span class="eq">=</span><span class="dr">2 × <span class="pi">π</span> × <i>r</i></span></div><div class="ln " data-s="4"><span class="g"><i>P</i></span><span class="eq">=</span><span class="dr">2 × <span class="pi">π</span> × 80</span></div><div class="ln " data-s="5"><span class="g"><i>P</i></span><span class="eq">=</span><span class="dr">160<span class="pi">π</span> <span class="u">cm</span></span><span class="nt">valeur exacte : on garde π</span></div></div>
+</div></section>
+<section class="ecran " id="q3a2" data-q="3"><div class="q q-court"><span class="qn">3. a. Longueur finie de la façade</span> <span class="suite">(suite)</span></div>
+<div class="corps">
+  <div class="fig"><svg viewBox="0 0 430 470" class="der stat" aria-hidden="true" data-static="1"><path d="M 70 320 L 330 320" class="trait"/><path d="M 70 320 L 200.0 94.8" class="trait"/><path d="M 330 320 A 260 260 0 0 0 200.0 94.8" class="fantome"/><path class="bande" d=""/><circle cx="70.0" cy="320.0" r="4.5" class="pt-fig"/><circle cx="330.0" cy="320.0" r="4.5" class="pt-fig"/><circle cx="200.0" cy="94.8" r="4.5" class="pt-fig"/><text x="58" y="328" class="let" text-anchor="end">O</text><text x="342" y="328" class="let">I</text><text x="212.0" y="84.8" class="let">M</text><text x="200.0" y="354" class="cote" text-anchor="middle">r = 80 cm</text><text x="193.9" y="448" class="cote lbL" text-anchor="middle">longueur développée <tspan font-style="italic">L</tspan></text></svg></div>
+  <div class="calc serre" style="--gw:6.2em"><div class="ln rap"><span class="g"><i>P</i></span><span class="eq">=</span><span class="dr">160<span class="pi">π</span> <span class="u">cm</span></span></div><div class="ln rap"><span class="g"><span class="w">part du tour</span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">1</span><span class="d">6</span></span></span></div><div class="ln fo" data-s="1"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">1</span><span class="d">6</span></span> × <i>P</i></span></div><div class="ln " data-s="2"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">1</span><span class="d">6</span></span> × 160<span class="pi">π</span></span></div><div class="ln " data-s="3"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">1 × 160<span class="pi">π</span></span><span class="d">6</span></span></span></div><div class="ln " data-s="4"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">160<span class="pi">π</span></span><span class="d">6</span></span></span></div><div class="ln " data-s="5"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">160<span class="pi">π</span> ÷ 2</span><span class="d">6 ÷ 2</span></span></span></div><div class="ln lres" data-s="6"><span class="cadre"></span><span class="g"><span class="gi"><i>L</i></span></span><span class="eq">=</span><span class="dr"><span class="di"><span class="fr "><span class="n">80<span class="pi">π</span></span><span class="d">3</span></span> <span class="u">cm</span></span></span><span class="nt">valeur exacte</span></div></div>
+</div></section>
+<section class="ecran " id="q3a3" data-q="3"><div class="q q-court"><span class="qn">3. a. Longueur finie de la façade</span> <span class="suite">(suite)</span></div>
+<div class="corps centre">
+  <div class="calc serre" style="--gw:3.6em"><div class="ln rap"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">80<span class="pi">π</span></span><span class="d">3</span></span> <span class="u">cm</span></span></div><div class="ln rap"><span class="g"><span class="w">1 cm</span></span><span class="eq">=</span><span class="dr"><span class="w">10 mm</span></span></div><div class="ln " data-s="1"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">80<span class="pi">π</span></span><span class="d">3</span></span> × 10</span></div><div class="ln " data-s="2"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">80<span class="pi">π</span> × 10</span><span class="d">3</span></span></span></div><div class="ln " data-s="3"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">800<span class="pi">π</span></span><span class="d">3</span></span> <span class="u">mm</span></span><span class="nt">valeur exacte en millimètres</span></div><div class="ln " data-s="4"><span class="g"><i>L</i></span><span class="eq">≈</span><span class="dr">837,758… <span class="u">mm</span></span></div><div class="ln lres" data-s="5"><span class="cadre"></span><span class="g"><span class="gi"><i>L</i></span></span><span class="eq">≈</span><span class="dr"><span class="di">838 <span class="u">mm</span></span></span><span class="nt">arrondi au millimètre</span></div><div class="rep"><span class="pts" data-s="6" data-h="7">Réponse : <span class="pointilles"></span></span><span class="txt" data-s="7">Réponse : La longueur finie de l’habillage est de <span class="m"><span class="fr fr-t"><span class="n">80<span class="pi">π</span></span><span class="d">3</span></span></span> cm, soit environ 838 mm.</span></div></div>
+</div></section>
+<section class="ecran " id="q3b" data-q="3"><div class="q"><span class="qn">3. Préparer la matière à débiter :</span> <span class="qa">b. Longueur brute à débiter :</span> Déterminer la longueur de bande à préparer avant fabrication, en tenant compte des sur-longueurs prévues pour l’ajustage. Arrondir au millimètre supérieur afin de ne pas manquer de matière.</div>
+
+<div class="consigne-f">
+  <table class="tab-f"><tr><th>Débit de la bande</th><td>Prévoir <b>30 mm</b> de surlongueur <b>à chaque extrémité</b> pour l’ajustage. La fiche de débit est renseignée en millimètres.</td></tr></table>
+</div>
+<div class="bande-f">
+  <div class="seg bout" data-s="2"><span>30 mm</span></div>
+  <div class="seg milieu" data-s="1"><span>longueur finie <i class="m">L</i> ≈ 838 mm</span></div>
+  <div class="seg bout" data-s="2"><span>30 mm</span></div>
+</div>
+<div class="corps centre haut">
+  <div class="calc serre" style="--gw:7.4em"><div class="ln fo" data-s="3"><span class="g"><span class="w">longueur brute</span></span><span class="eq">=</span><span class="dr"><i>L</i> + 2 × 30</span></div><div class="ln " data-s="4"><span class="g"><span class="w">longueur brute</span></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">800<span class="pi">π</span></span><span class="d">3</span></span> + 60</span></div><div class="ln " data-s="5"><span class="g"><span class="w">longueur brute</span></span><span class="eq">≈</span><span class="dr">897,758… <span class="u">mm</span></span></div><div class="ln lres" data-s="6"><span class="cadre"></span><span class="g"><span class="gi"><span class="w">longueur brute</span></span></span><span class="eq">≈</span><span class="dr"><span class="di">898 <span class="u">mm</span></span></span><span class="nt">arrondi au millimètre supérieur</span></div><div class="rep"><span class="pts" data-s="7" data-h="8">Réponse : <span class="pointilles"></span></span><span class="txt" data-s="8">Réponse : Il faut débiter une bande de 898 mm.</span></div></div>
+</div></section>
+<section class="ecran " id="q4a" data-q="4">
+<div class="corps deux">
+  
+<div class="gauche4">
+  <div class="q"><span class="qn">4. Contrôler le réglage prérempli :</span> La préparation du tracé a été commencée. L’écran de réglage indique :</div>
+  
+<table class="tab-r">
+  <tr><th>MODULE DE TRACÉ</th><td>Préparation du gabarit</td></tr>
+  <tr><th>Arc sélectionné</th><td>De I vers M</td></tr>
+  <tr><th>Paramètre</th><td>Ouverture angulaire</td></tr>
+  <tr><th>Valeur préremplie</th><td class="val"><b>1,05 rad</b></td></tr>
+</table>
+  <div class="q q2">Vérifier si cette valeur est cohérente avec le plan et la longueur finie de la façade. Justifier par un calcul, préciser la valeur exacte en radians, puis indiquer si le réglage peut être validé ou doit être corrigé.</div>
+</div>
+  <div class="calc serre" style="--gw:1.8em"><div class="ln rap"><span class="g"><i>L</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">80<span class="pi">π</span></span><span class="d">3</span></span> <span class="u">cm</span><span class="w sep">et</span><i>r</i> = 80 <span class="u">cm</span></span></div><div class="ln fo" data-s="1"><span class="g"><i>θ</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n"><i>L</i></span><span class="d"><i>r</i></span></span></span></div><div class="ln " data-s="2"><span class="g"><i>θ</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n">80<span class="pi">π</span></span><span class="d">3</span></span> ÷ 80</span></div><div class="ln " data-s="3"><span class="g"><i>θ</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n"><span class="bz" data-x="4">80</span><span class="pi">π</span></span><span class="d">3 × <span class="bz" data-x="4">80</span></span></span></span></div><div class="ln lres" data-s="5"><span class="cadre"></span><span class="g"><span class="gi"><i>θ</i></span></span><span class="eq">=</span><span class="dr"><span class="di"><span class="fr "><span class="n"><span class="pi">π</span></span><span class="d">3</span></span> <span class="u">rad</span></span></span><span class="nt">valeur exacte</span></div></div>
+</div></section>
+<section class="ecran " id="q4b" data-q="4">
+<div class="corps deux">
+  
+<div class="gauche4">
+  <div class="q"><span class="qn">4. Contrôler le réglage prérempli :</span> La préparation du tracé a été commencée. L’écran de réglage indique :</div>
+  
+<table class="tab-r">
+  <tr><th>MODULE DE TRACÉ</th><td>Préparation du gabarit</td></tr>
+  <tr><th>Arc sélectionné</th><td>De I vers M</td></tr>
+  <tr><th>Paramètre</th><td>Ouverture angulaire</td></tr>
+  <tr><th>Valeur préremplie</th><td class="val" data-hl="3"><b>1,05 rad</b><span class="ok" data-s="3">✓ cohérent</span></td></tr>
+</table>
+  <div class="q q2">Vérifier si cette valeur est cohérente avec le plan et la longueur finie de la façade. Justifier par un calcul, préciser la valeur exacte en radians, puis indiquer si le réglage peut être validé ou doit être corrigé.</div>
+</div>
+  <div class="calc" style="--gw:1.8em"><div class="ln rap"><span class="g"><i>θ</i></span><span class="eq">=</span><span class="dr"><span class="fr "><span class="n"><span class="pi">π</span></span><span class="d">3</span></span> <span class="u">rad</span></span></div><div class="ln " data-s="1"><span class="g"><i>θ</i></span><span class="eq">≈</span><span class="dr">1,047… <span class="u">rad</span></span></div><div class="ln lres" data-s="2"><span class="cadre"></span><span class="g"><span class="gi"><i>θ</i></span></span><span class="eq">≈</span><span class="dr"><span class="di">1,05 <span class="u">rad</span></span></span><span class="nt">arrondi au centième</span></div><div class="rep"><span class="pts" data-s="4" data-h="5">Réponse : <span class="pointilles"></span></span><span class="txt" data-s="5">Réponse : La valeur exacte est <span class="m"><span class="fr fr-t"><span class="n"><span class="pi">π</span></span><span class="d">3</span></span></span> rad, soit environ 1,05 rad : la valeur préremplie est cohérente, le réglage peut être validé.</span></div></div>
+</div></section>
+<section class="ecran " id="q5" data-q="5">
+<div class="q"><span class="qn">5. Transmettre la fiche de préparation :</span> Compléter la fiche ci-dessous avec les valeurs retenues. Le responsable d’atelier doit pouvoir l’exploiter sans reprendre vos calculs.</div>
+<table class="fiche">
+  <tr><th>FICHE DE PRÉPARATION — ACC-001</th><th>FORME / UNITÉ</th><th>VALEUR RETENUE</th></tr>
+  <tr><td>Ouverture du cintre</td><td>degrés</td><td class="v"><span class="pt" data-s="1">60°</span></td></tr><tr><td>Part d’un tour complet</td><td>fraction simplifiée</td><td class="v"><span class="pt" data-s="2"><span class="m"><span class="fr fr-t"><span class="n">1</span><span class="d">6</span></span></span></span></td></tr><tr><td>Part d’un tour complet</td><td>% (au centième)</td><td class="v"><span class="pt" data-s="3">16,67 %</span></td></tr><tr><td>Longueur finie de l’habillage</td><td>mm (arrondi au mm)</td><td class="v"><span class="pt" data-s="4">838 mm</span></td></tr><tr><td>Longueur brute à débiter, surlongueurs comprises</td><td>mm (arrondi supérieur)</td><td class="v"><span class="pt" data-s="5">898 mm</span></td></tr><tr><td>Ouverture à saisir pour le tracé</td><td>rad (au centième)</td><td class="v"><span class="pt" data-s="6">1,05 rad</span></td></tr><tr><td>Avis sur la valeur préremplie</td><td>à valider / à corriger</td><td class="v"><span class="pt" data-s="7">à valider</span></td></tr>
+</table>
+<div class="consigne5">
+  <div class="c5t">Consigne à transmettre à l’atelier :</div>
+  <p><span class="pt" data-s="8">Débiter la bande d’habillage à 898 mm (30 mm de surlongueur à chaque extrémité).</span>
+  <span class="pt" data-s="9">Après mise en forme, l’ajuster à 838 mm, longueur finie de l’arc IM.</span>
+  <span class="pt" data-s="10">Tracé du gabarit : valeur préremplie de 1,05 rad validée, arc de I vers M.</span></p>
+</div></section>
+</main>
+<div id="cpt"></div>
+<script>
+(function(){
+  const E=[...document.querySelectorAll('.ecran')];
+  const REDUIT=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // nombre d'étapes de chaque écran
+  E.forEach(e=>{
+    let m=0;
+    e.querySelectorAll('[data-s],[data-h],[data-x],[data-hl]').forEach(el=>{
+      ['s','h','x'].forEach(k=>{ if(el.dataset[k]!==undefined) m=Math.max(m,+el.dataset[k]); });
+      if(el.dataset.hl) el.dataset.hl.split(',').forEach(v=>m=Math.max(m,+v));
+    });
+    // un élément masqué (data-h) au-delà du dernier dévoilement ne crée pas d'étape
+    e._n=m;
+  });
+  // les data-h qui ne servent qu'à remplacer : l'étape max est celle du dernier data-s
+  E.forEach(e=>{
+    let m=0;
+    e.querySelectorAll('[data-s],[data-x],[data-hl]').forEach(el=>{
+      if(el.dataset.s!==undefined) m=Math.max(m,+el.dataset.s);
+      if(el.dataset.x!==undefined) m=Math.max(m,+el.dataset.x);
+      if(el.dataset.hl) el.dataset.hl.split(',').forEach(v=>m=Math.max(m,+v));
+    });
+    e._n=m;
+  });
+  const TOTAL=E.reduce((a,e)=>a+e._n+1,0);
+  let i=0, s=0;
+
+  /* ---- cadres des résultats : ils épousent « x = … » ---- */
+  function cadrer(){
+    document.querySelectorAll('.ln.lres').forEach(l=>{
+      const a=l.querySelector('.gi'), b=l.querySelector('.di'), c=l.querySelector('.cadre');
+      if(!a||!b||!c) return;
+      const L=l.getBoundingClientRect(), ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
+      if(!L.width) return;
+      const fs=parseFloat(getComputedStyle(l).fontSize), px=.28*fs, py=.16*fs;
+      const top=Math.min(ra.top,rb.top), bot=Math.max(ra.bottom,rb.bottom);
+      c.style.left=(ra.left-L.left-px)+'px';
+      c.style.width=(rb.right-ra.left+2*px)+'px';
+      c.style.top=(top-L.top-py)+'px';
+      c.style.height=(bot-top+2*py)+'px';
+    });
+  }
+
+  /* ---- produit en croix (question 1) ---- */
+  function croix(e, animer){
+    const calc=e.querySelector('.calc'), svg=e.querySelector('.croix');
+    const R=calc.getBoundingClientRect();
+    const c=n=>{const r=e.querySelector('[data-tk="'+n+'"]').getBoundingClientRect();
+      return [r.left+r.width/2-R.left, r.top+r.height/2-R.top];};
+    const pts=['a','b','c','d'].map(c);
+    const d='M '+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
+    const fs=parseFloat(getComputedStyle(calc).fontSize);
+    let h='<path d="'+d+'"/>';
+    svg.innerHTML=h;
+    const p=svg.querySelector('path');
+    // raccourcir visuellement : on garde le tracé entier, mais il passe sous les nombres
+    p.style.opacity='.75';
+    if(animer && !REDUIT){
+      const len=p.getTotalLength();
+      p.style.strokeDasharray=len; p.style.strokeDashoffset=len;
+      p.getBoundingClientRect();
+      p.style.transition='stroke-dashoffset 2.2s ease-in-out';
+      p.style.strokeDashoffset=0;
+    }
+  }
+
+  /* ---- déroulé de l'arc (question 3a) ---- */
+  const O=[70,320], RR=260, I0=[330,320], Y=410, NP=48;
+  function dDeroule(u){
+    let d='';
+    for(let k=0;k<=NP;k++){
+      const t=k/NP*Math.PI/3;
+      const ax=O[0]+RR*Math.cos(t), ay=O[1]-RR*Math.sin(t);
+      const lx=I0[0]-RR*t, ly=Y;
+      const x=ax+(lx-ax)*u, y=ay+(ly-ay)*u;
+      d+=(k?' L ':'M ')+x.toFixed(1)+' '+y.toFixed(1);
+    }
+    return d;
+  }
+  let animDer=null;
+  function deroule(svg,u,animer){
+    const p=svg.querySelector('.bande');
+    if(animDer){cancelAnimationFrame(animDer);animDer=null;}
+    if(!animer||REDUIT){p.setAttribute('d',dDeroule(u));return;}
+    const t0=performance.now(), D=2200;
+    const f=now=>{
+      let k=Math.min(1,(now-t0)/D); k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+      p.setAttribute('d',dDeroule(k*u));
+      if(k<1) animDer=requestAnimationFrame(f); else animDer=null;
+    };
+    animDer=requestAnimationFrame(f);
+  }
+  document.querySelectorAll('svg.der').forEach(sv=>deroule(sv, sv.dataset.static==='1'?1:0, false));
+
+  const HOOKS={
+    q1a:(s,fwd,e)=>{ const svg=e.querySelector('.croix');
+      if(s===7||s===8) croix(e, fwd&&s===7); else svg.innerHTML=''; },
+    q3a1:(s,fwd,e)=>{ const sv=e.querySelector('svg.der');
+      if(s>=1) deroule(sv,1,fwd&&s===1); else deroule(sv,0,false); }
+  };
+
+  const nav=[...document.querySelectorAll('nav button')];
+  function rendu(fwd){
+    E.forEach((e,k)=>e.classList.toggle('actif',k===i));
+    const e=E[i];
+    e.querySelectorAll('[data-s]').forEach(el=>{const v=+el.dataset.s; el.classList.toggle('on',s>=v); el.classList.toggle('cur',s===v);});
+    e.querySelectorAll('[data-h]').forEach(el=>el.classList.toggle('off',s>=+el.dataset.h));
+    e.querySelectorAll('[data-x]').forEach(el=>el.classList.toggle('barre',s>=+el.dataset.x));
+    e.querySelectorAll('[data-hl]').forEach(el=>el.classList.toggle('hl',el.dataset.hl.split(',').map(Number).includes(s)));
+    const q=+e.dataset.q;
+    document.body.classList.toggle('acc',q<0);
+    nav.forEach(b=>{const g=+b.dataset.go; b.classList.toggle('actif',g===q); b.classList.toggle('fait',g<q);});
+    let pos=0; for(let k=0;k<i;k++) pos+=E[k]._n+1; pos+=s+1;
+    document.getElementById('cpt').textContent=pos+' / '+TOTAL;
+    cadrer();
+    (HOOKS[e.id]||function(){})(s,fwd,e);
+  }
+  function suivant(){ if(s<E[i]._n) s++; else if(i<E.length-1){i++;s=0;} else return; rendu(true); }
+  function precedent(){ if(s>0) s--; else if(i>0){i--;s=E[i]._n;} else return; rendu(false); }
+  function aller(q){ const k=E.findIndex(e=>+e.dataset.q===q); if(k>=0){i=k;s=0;rendu(false);} }
+
+  document.addEventListener('keydown',ev=>{
+    const k=ev.key;
+    if(['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(k)){ev.preventDefault();suivant();}
+    else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(k)){ev.preventDefault();precedent();}
+    else if(k==='Home'){i=0;s=0;rendu(false);}
+    else if(k==='End'){i=E.length-1;s=E[i]._n;rendu(false);}
+    else if(/^[0-5]$/.test(k)) aller(+k);
+    else if(k==='f'||k==='F'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  });
+  document.addEventListener('click',ev=>{ if(ev.target.closest('nav,button')) return; suivant(); });
+  document.getElementById('commencer').addEventListener('click',suivant);
+  nav.forEach(b=>b.addEventListener('click',()=>aller(+b.dataset.go)));
+  window.addEventListener('resize',()=>rendu(false));
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>rendu(false));
+  window.Deck={suivant,precedent,aller,etat:()=>({i,s,id:E[i].id,n:E[i]._n})};
+  rendu(false);
+})();
+</script>
+</body>
+</html>
